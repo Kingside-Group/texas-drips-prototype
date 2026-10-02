@@ -1,0 +1,25 @@
+const menu={
+ iv:[{name:'Athlete Recovery',description:'Explore the ingredients in this IV option and discuss your goals with Angee.',ingredients:'Amino acids · Vitamin B12 · B vitamins',source:'IV therapy'},
+ {name:'Myers’',description:'Get to know a multi-ingredient IV option from the Texas Drips menu.',ingredients:'Vitamin C · Magnesium · B vitamins',source:'IV therapy'},
+ {name:'Energy',description:'Ask what is included, what to expect, and whether this menu option is appropriate for you.',ingredients:'Magnesium · Vitamin C · B vitamins',source:'IV therapy'},
+ {name:'Beauty / Youth',description:'A named IV option in the education book. Start with an explanation of its ingredients and clinical requirements.',ingredients:'Vitamin C · Biotin · Glycine · Zinc',source:'IV therapy'}],
+ injections:[{name:'B12 / B Complex / MIC',description:'Talk through the differences between these injection options before choosing care.',ingredients:'Vitamin B12 · B-complex · MIC',source:'Injections'},
+ {name:'Glutathione',description:'Ask about the service, administration options, and individual eligibility.',ingredients:'Glutathione',source:'Injections'},
+ {name:'Carnitine',description:'Explore this option with Angee and ask about the clinical review required.',ingredients:'Carnitine',source:'Injections'}],
+ wellness:[{name:'NAD+ / NR',description:'Discuss these menu options and the differences between them with the clinical team.',ingredients:'NAD+ · Nicotinamide riboside',source:'Wellness options'},
+ {name:'Weight management',description:'Ask about current availability, clinical requirements, and the process for discussing a treatment plan.',ingredients:'Semaglutide and tirzepatide are named in the book. Current availability and prescribing arrangements must be confirmed.',source:'Wellness options'},
+ {name:'Sermorelin',description:'Ask the clinical team about availability and what an individual assessment involves.',ingredients:'Sermorelin',source:'Wellness options'}]
+};
+const list=document.querySelector('#service-list'),detail=document.querySelector('#service-detail');
+let category='iv',selected=0;
+function showService(index){selected=index;const service=menu[category][index];list.querySelectorAll('button').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));detail.replaceChildren();const eyebrow=document.createElement('p');eyebrow.className='eyebrow';eyebrow.textContent=service.source;const title=document.createElement('h3');title.textContent=service.name;const description=document.createElement('p');description.textContent=service.description;const ingredients=document.createElement('p');ingredients.className='ingredients';const label=document.createElement('strong');label.textContent='From the education book';ingredients.append(label,document.createTextNode(service.ingredients));const button=document.createElement('button');button.className='text-link dark-link';button.textContent='Ask about this service ↗';button.addEventListener('click',()=>openVisit(service.source));detail.append(eyebrow,title,description,ingredients,button)}
+function showCategory(key){category=key;list.replaceChildren();menu[key].forEach((service,index)=>{const button=document.createElement('button');button.className='service-row';button.setAttribute('aria-pressed','false');button.append(document.createTextNode(service.name));const arrow=document.createElement('span');arrow.textContent='↗';arrow.setAttribute('aria-hidden','true');button.append(arrow);button.addEventListener('click',()=>showService(index));list.append(button)});showService(0)}
+document.querySelectorAll('[data-category]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-category]').forEach(other=>other.setAttribute('aria-pressed',String(other===button)));showCategory(button.dataset.category)}));
+const dialog=document.querySelector('#visit-dialog'),form=document.querySelector('#visit-form'),result=document.querySelector('#visit-result');
+function openVisit(interest){form.reset();form.hidden=false;result.hidden=true;if(interest)document.querySelector('#interest').value=interest;dialog.showModal()}
+document.querySelectorAll('[data-book]').forEach(button=>button.addEventListener('click',()=>openVisit()));
+document.querySelector('.close-dialog').addEventListener('click',()=>dialog.close());
+dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close()}});
+form.addEventListener('submit',event=>{event.preventDefault();document.querySelector('#visit-summary').textContent=`Your interests: ${document.querySelector('#interest').value}. Your timing: ${document.querySelector('#timing').value}.`;form.hidden=true;result.hidden=false;result.querySelector('a').focus()});
+document.querySelector('#start-again').addEventListener('click',()=>{form.hidden=false;result.hidden=true;document.querySelector('#interest').focus()});
+showCategory('iv');
